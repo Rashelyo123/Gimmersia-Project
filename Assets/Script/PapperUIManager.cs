@@ -4,30 +4,28 @@ using UnityEngine.UI;
 public class PaperUIManager : MonoBehaviour
 {
     [Header("Paper Elements")]
+    public Toggle[] yesToggles;   // Toggle YES untuk setiap prompt
+    public Toggle[] noToggles;    // Toggle NO untuk setiap prompt
 
-    public Toggle[] yesToggles;
-    public Toggle[] noToggles;
-
-    private int unlockedPrompt = 0;
     private GameManager gm;
+    private PaperAnimator paperAnimator;
 
     void Start()
     {
         gm = FindObjectOfType<GameManager>();
+        paperAnimator = FindObjectOfType<PaperAnimator>();
 
 
-        // Reset semua toggle
         for (int i = 0; i < yesToggles.Length; i++)
         {
             yesToggles[i].isOn = false;
             noToggles[i].isOn = false;
-            yesToggles[i].interactable = false;
-            noToggles[i].interactable = false;
+
+            yesToggles[i].interactable = true;
+            noToggles[i].interactable = true;
         }
 
-        UnlockPrompt(0); // hanya prompt pertama aktif
 
-        // listener
         for (int i = 0; i < yesToggles.Length; i++)
         {
             int index = i;
@@ -38,66 +36,43 @@ public class PaperUIManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            FindObjectOfType<PaperAnimator>().TogglePaper();
-        }
 
-    }
-
-    public void UnlockPrompt(int index)
-    {
-        if (index < yesToggles.Length)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            yesToggles[index].interactable = true;
-            noToggles[index].interactable = true;
+            paperAnimator.TogglePaper();
+
+
+            if (!paperAnimator.IsOpen())
+            {
+                gm.CheckForJumpscareOnClose();
+            }
         }
     }
 
-    public void LockPrompt(int index)
-    {
-        if (index < yesToggles.Length)
-        {
-            yesToggles[index].interactable = false;
-            noToggles[index].interactable = false;
-        }
-    }
 
     public void OnCheckboxSelected(int index, bool isYes)
     {
+
         if (!(isYes ? yesToggles[index].isOn : noToggles[index].isOn)) return;
 
-        // pastikan cuma satu pilihan
+
         if (isYes) noToggles[index].isOn = false;
         else yesToggles[index].isOn = false;
 
-        // hanya boleh jawab prompt yang sedang aktif
-        if (index != unlockedPrompt) return;
 
-        // kirim jawaban ke GameManager
-        gm.SubmitAnswer(isYes);
-
-        // kunci prompt yang barusan dijawab
-        LockPrompt(index);
+        gm.SubmitAnswer(index, isYes);
     }
+
 
     public void ResetPaper()
     {
-        unlockedPrompt = 0;
         for (int i = 0; i < yesToggles.Length; i++)
         {
             yesToggles[i].isOn = false;
             noToggles[i].isOn = false;
-            yesToggles[i].interactable = false;
-            noToggles[i].interactable = false;
-        }
-        UnlockPrompt(0);
-    }
 
-    // Fungsi baru – dipanggil dari GameManager saat audio pertanyaan baru selesai
-    public void UnlockPromptExternally(int index)
-    {
-        unlockedPrompt = index;
-        UnlockPrompt(index);
+            yesToggles[i].interactable = true;
+            noToggles[i].interactable = true;
+        }
     }
 }

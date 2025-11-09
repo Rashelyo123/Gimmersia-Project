@@ -7,17 +7,6 @@ public class PaperAnimator : MonoBehaviour
 
 
 
-    void Update()
-    {
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TogglePaper();
-            Debug.Log("Toggled Paper");
-        }
-
-
-    }
 
     public void TogglePaper()
     {

@@ -1,128 +1,219 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public enum GameState { StartLevel, Listening, AnswerQuestion, CheckAnswer, EndLevel }
 
 public class GameManager : MonoBehaviour
 {
+    [Header("Game Settings")]
     public GameState currentState = GameState.StartLevel;
-    public int currentQuestion = 0;
     public int maxQuestions = 5;
-    public bool isTutorial = true;
 
     [Header("Audio Settings")]
     public AudioSource audioSource;
     public AudioClip[] questionAudios;
+
+    [Header("UI Elements")]
+    [SerializeField] private Button retryButton;
+    [SerializeField] private Button returnButton;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject Jumpscare;
+
+    [SerializeField] private CanvasGroup blackScreen;
+
+
     [Header("Answer Settings")]
     public bool[] correctAnswers = new bool[5] { true, false, true, true, false };
 
+    [Header("References")]
     private UI_Manager ui;
     private PaperUIManager paperUI;
+
+    // Tracking
+    private bool[] answered;
+    private bool[] correctAnswerGiven;
+    private int currentAudioIndex = 0;
+    private int lastReadIndex = -1;
+    private bool allAudioPlayed = false;
+    private bool gameOver = false;
+
 
     void Start()
     {
         ui = FindObjectOfType<UI_Manager>();
         paperUI = FindObjectOfType<PaperUIManager>();
-        StartLevel();
+
+        answered = new bool[maxQuestions];
+        correctAnswerGiven = new bool[maxQuestions];
+
+        StartCoroutine(PlayAllQuestions());
     }
 
-    void StartLevel()
+
+    IEnumerator PlayAllQuestions()
     {
-        currentState = GameState.Listening;
-        currentQuestion = 1;
         ui.ShowMessage("Audio log started...");
 
-
-        FindObjectOfType<PaperUIManager>().ResetPaper();
-
-        Invoke("PlayQuestionAudio", 2f);
-    }
-
-
-    void PlayQuestionAudio()
-    {
-        if (currentQuestion <= maxQuestions)
+        for (currentAudioIndex = 0; currentAudioIndex < maxQuestions; currentAudioIndex++)
         {
-            audioSource.clip = questionAudios[currentQuestion - 1];
-            audioSource.Play();
+            AudioClip clip = questionAudios[currentAudioIndex];
             currentState = GameState.Listening;
-            ui.ShowMessage($"Playing Question {currentQuestion}...");
+
+            ui.ShowMessage($"Playing Question {currentAudioIndex + 1}...");
+            audioSource.clip = clip;
+            audioSource.Play();
 
 
-            Invoke("EnablePaperPrompt", audioSource.clip.length);
-        }
-    }
-
-    void EnablePaperPrompt()
-    {
-        currentState = GameState.AnswerQuestion;
-        ui.ShowMessage($"Document the result for Prompt {currentQuestion}.");
-
-        FindObjectOfType<PaperUIManager>().UnlockPromptExternally(currentQuestion - 1);
-    }
-
-    public void SubmitAnswer(bool isYes)
-    {
-        currentState = GameState.CheckAnswer;
+            yield return new WaitForSeconds(clip.length);
 
 
-        bool correct = correctAnswers[currentQuestion - 1];
+            lastReadIndex = currentAudioIndex;
 
-        if (isTutorial && currentQuestion == 1)
-        {
-
-            if (isYes != correct)
-                ui.ShowWarning(" Incorrect - Entity detected minor movement.");
-
-            NextQuestion();
-            return;
+            yield return new WaitForSeconds(1f);
         }
 
-        if (isYes == correct)
+
+        allAudioPlayed = true;
+        StartCoroutine(WaitForCompletion());
+    }
+
+
+    public void SubmitAnswer(int questionIndex, bool isYes)
+    {
+        if (gameOver) return;
+
+        answered[questionIndex] = true;
+        bool correct = correctAnswers[questionIndex];
+        correctAnswerGiven[questionIndex] = (isYes == correct);
+
+        if (!correct)
         {
-            ui.ShowMessage("Response recorded.");
-            NextQuestion();
+            ui.ShowWarning($"Incorrect answer for Question {questionIndex + 1}!");
         }
         else
         {
-            TriggerJumpscareChance();
+            ui.ShowMessage($"Response for Question {questionIndex + 1} recorded.");
         }
     }
 
 
-    void NextQuestion()
+    public void CheckForJumpscareOnClose()
     {
-        currentQuestion++;
-        if (currentQuestion > maxQuestions)
+        if (gameOver) return;
+
+        for (int i = 0; i < maxQuestions; i++)
         {
-            EndLevel();
-        }
-        else
-        {
-            ui.ShowMessage($"Preparing next audio prompt...");
-            Invoke("PlayQuestionAudio", 2f);
+
+            if (answered[i] && !correctAnswerGiven[i] && i <= currentAudioIndex)
+            {
+                TriggerJumpscare($"Entity detected anomaly on Question {i + 1}...");
+                return;
+            }
         }
     }
+
+
+    IEnumerator WaitForCompletion()
+    {
+        yield return new WaitForSeconds(5f);
+
+
+        for (int i = 0; i < maxQuestions; i++)
+        {
+            if (!answered[i])
+            {
+                TriggerJumpscare("You failed to complete all prompts!");
+                yield break;
+            }
+        }
+
+
+        for (int i = 0; i < maxQuestions; i++)
+        {
+            if (!correctAnswerGiven[i])
+            {
+                TriggerJumpscare("Incorrect responses detected...");
+                yield break;
+            }
+        }
+
+        EndLevel();
+    }
+
 
     void EndLevel()
     {
+        if (gameOver) return;
+        gameOver = true;
         currentState = GameState.EndLevel;
-        ui.ShowMessage("Audio log ended. Salvage complete.");
+        ui.ShowMessage("Audio log ended. Salvage complete. You survived.");
     }
 
-    void TriggerJumpscareChance()
+    void TriggerJumpscare(string reason)
     {
-        ui.ShowWarning(" Incorrect response!");
-        // float chance = Random.value;
+        if (gameOver) return;
+        gameOver = true;
+        currentState = GameState.EndLevel;
 
-        // if (chance < 0.4f)
-        // {
-        //     ui.ShowWarning("⚠ Entity becomes hostile!");
-        //     // TODO: Trigger jumpscare animation or sound
-        // }
-        // else
-        // {
-        //     ui.ShowWarning("Entity moved closer...");
-        //     NextQuestion();
-        // }
+        ui.ShowWarning(reason);
+        Debug.Log("💀 Jumpscare Triggered: " + reason);
+        StartCoroutine(FadeToBlackAndGameOver());
+
+        // add animation Jumpscare here
     }
+
+    IEnumerator FadeToBlackAndGameOver()
+    {
+        if (Jumpscare)
+        {
+            Jumpscare.SetActive(true);
+        }
+        yield return new WaitForSeconds(2f);
+
+
+        float t = 0f;
+        if (blackScreen)
+        {
+            while (t < 1f)
+            {
+                t += Time.deltaTime * 0.6f;
+                blackScreen.alpha = Mathf.Lerp(0, 1, t);
+
+
+                if (t < 0.2f && Random.value > 0.5f)
+                    blackScreen.alpha = 1f;
+
+                yield return null;
+            }
+        }
+
+
+        yield return new WaitForSeconds(1f);
+
+
+        if (gameOverPanel)
+            gameOverPanel.SetActive(true);
+
+
+
+
+        yield return new WaitForSeconds(1f);
+
+        if (retryButton)
+        {
+            retryButton.gameObject.SetActive(true);
+            retryButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
+        }
+
+        if (returnButton)
+        {
+            returnButton.gameObject.SetActive(true);
+            returnButton.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
+        }
+
+
+    }
+
 }
