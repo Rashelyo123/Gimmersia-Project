@@ -11,10 +11,12 @@ public class GameManager : MonoBehaviour
 
     [Header("Audio Settings")]
     public AudioSource audioSource;
-    public AudioClip[] questionAudios; // Assign 5 clips di Inspector
+    public AudioClip[] questionAudios;
+    [Header("Answer Settings")]
+    public bool[] correctAnswers = new bool[5] { true, false, true, true, false };
 
-    private UI_Manager ui;               // Untuk menampilkan teks notifikasi
-    private PaperUIManager paperUI;     // Untuk interaksi checkbox
+    private UI_Manager ui;
+    private PaperUIManager paperUI;
 
     void Start()
     {
@@ -28,8 +30,13 @@ public class GameManager : MonoBehaviour
         currentState = GameState.Listening;
         currentQuestion = 1;
         ui.ShowMessage("Audio log started...");
+
+
+        FindObjectOfType<PaperUIManager>().ResetPaper();
+
         Invoke("PlayQuestionAudio", 2f);
     }
+
 
     void PlayQuestionAudio()
     {
@@ -40,7 +47,7 @@ public class GameManager : MonoBehaviour
             currentState = GameState.Listening;
             ui.ShowMessage($"Playing Question {currentQuestion}...");
 
-            // Setelah audio selesai → izinkan pemain menjawab lewat kertas
+
             Invoke("EnablePaperPrompt", audioSource.clip.length);
         }
     }
@@ -49,27 +56,28 @@ public class GameManager : MonoBehaviour
     {
         currentState = GameState.AnswerQuestion;
         ui.ShowMessage($"Document the result for Prompt {currentQuestion}.");
-        // PaperUIManager sudah handle checkbox aktif/nonaktif
+
+        FindObjectOfType<PaperUIManager>().UnlockPromptExternally(currentQuestion - 1);
     }
 
     public void SubmitAnswer(bool isYes)
     {
         currentState = GameState.CheckAnswer;
 
-        // Cek jawaban (contohnya: Prompt 1 aman, sisanya punya risiko)
+
+        bool correct = correctAnswers[currentQuestion - 1];
+
         if (isTutorial && currentQuestion == 1)
         {
-            if (!isYes)
-                ui.ShowWarning("⚠ Incorrect - Entity detected minor movement.");
+
+            if (isYes != correct)
+                ui.ShowWarning(" Incorrect - Entity detected minor movement.");
 
             NextQuestion();
             return;
         }
 
-        // Misal untuk prototype — anggap jawaban benar itu 'yes'
-        bool isCorrect = isYes;
-
-        if (isCorrect)
+        if (isYes == correct)
         {
             ui.ShowMessage("Response recorded.");
             NextQuestion();
@@ -79,6 +87,7 @@ public class GameManager : MonoBehaviour
             TriggerJumpscareChance();
         }
     }
+
 
     void NextQuestion()
     {
@@ -102,17 +111,18 @@ public class GameManager : MonoBehaviour
 
     void TriggerJumpscareChance()
     {
-        float chance = Random.value;
+        ui.ShowWarning(" Incorrect response!");
+        // float chance = Random.value;
 
-        if (chance < 0.4f)
-        {
-            ui.ShowWarning("⚠ Entity becomes hostile!");
-            // TODO: Trigger jumpscare animation or sound
-        }
-        else
-        {
-            ui.ShowWarning("Entity moved closer...");
-            NextQuestion();
-        }
+        // if (chance < 0.4f)
+        // {
+        //     ui.ShowWarning("⚠ Entity becomes hostile!");
+        //     // TODO: Trigger jumpscare animation or sound
+        // }
+        // else
+        // {
+        //     ui.ShowWarning("Entity moved closer...");
+        //     NextQuestion();
+        // }
     }
 }

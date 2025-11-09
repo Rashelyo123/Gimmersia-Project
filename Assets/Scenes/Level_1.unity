@@ -527,7 +527,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 980014650835a7f469c1219b51341877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  paperPanel: {fileID: 940139708}
   yesToggles:
   - {fileID: 1085152687}
   - {fileID: 1565920252}
@@ -574,7 +573,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -240}
+  m_AnchoredPosition: {x: 0, y: -27}
   m_SizeDelta: {x: 790.0461, y: 130.0063}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &176976571
@@ -730,6 +729,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
+  correctAnswers: 0100010100
 --- !u!82 &177918355
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2245,13 +2245,15 @@ GameObject:
   - component: {fileID: 940139709}
   - component: {fileID: 940139711}
   - component: {fileID: 940139710}
+  - component: {fileID: 940139712}
+  - component: {fileID: 940139713}
   m_Layer: 5
   m_Name: Paper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &940139709
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2273,7 +2275,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -1.8852}
+  m_AnchoredPosition: {x: 0, y: -1053}
   m_SizeDelta: {x: 851.6149, y: 911.8445}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &940139710
@@ -2314,6 +2316,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 940139708}
   m_CullTransparentMesh: 1
+--- !u!114 &940139712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940139708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abdde132dc7808545817c4d29cf3b40d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  paperAnimator: {fileID: 940139713}
+--- !u!95 &940139713
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940139708}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4a7ef444f2baec741b5e716a0c53feea, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &946725587
 GameObject:
   m_ObjectHideFlags: 0
