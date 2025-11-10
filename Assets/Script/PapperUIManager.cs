@@ -36,18 +36,21 @@ public class PaperUIManager : MonoBehaviour
 
     void Update()
     {
-
         if (Input.GetKeyDown(KeyCode.Space))
         {
             paperAnimator.TogglePaper();
 
-
+            // Hanya cek jumpscare kalau BUKAN tutorial
             if (!paperAnimator.IsOpen())
             {
+                // Pastikan GameManager ada dan bukan di tutorial
                 if (gm != null && !gm.isTutorial)
+                {
                     gm.CheckForJumpscareOnClose();
+                }
             }
         }
+
     }
 
 
