@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour
     [Header("Audio Settings")]
     public AudioSource audioSource;
     public AudioClip[] questionAudios;
+    [Header("Gameplay Mode")]
+    public bool isTutorial = true;
 
     [Header("UI Elements")]
     [SerializeField] private Button retryButton;
@@ -47,6 +49,9 @@ public class GameManager : MonoBehaviour
 
         answered = new bool[maxQuestions];
         correctAnswerGiven = new bool[maxQuestions];
+        if (isTutorial)
+            paperUI.LockAllExceptFirst();
+        else paperUI.UnlockAllPrompts();
 
         StartCoroutine(PlayAllQuestions());
     }
@@ -88,6 +93,22 @@ public class GameManager : MonoBehaviour
         bool correct = correctAnswers[questionIndex];
         correctAnswerGiven[questionIndex] = (isYes == correct);
 
+        if (isTutorial && questionIndex == 0)
+        {
+            if (!correctAnswerGiven[questionIndex])
+            {
+                ui.ShowWarning("Incorrect answer for Question 1! Next Question.");
+                isTutorial = false;
+                paperUI.UnlockAllPrompts();
+            }
+            else
+            {
+                ui.ShowMessage("Response for Question 1 recorded. You may now answer the next question.");
+                isTutorial = false;
+                paperUI.UnlockAllPrompts();
+            }
+            return;
+        }
         if (!correct)
         {
             ui.ShowWarning($"Incorrect answer for Question {questionIndex + 1}!");

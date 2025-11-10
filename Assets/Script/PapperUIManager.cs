@@ -4,8 +4,8 @@ using UnityEngine.UI;
 public class PaperUIManager : MonoBehaviour
 {
     [Header("Paper Elements")]
-    public Toggle[] yesToggles;   // Toggle YES untuk setiap prompt
-    public Toggle[] noToggles;    // Toggle NO untuk setiap prompt
+    public Toggle[] yesToggles;
+    public Toggle[] noToggles;
 
     private GameManager gm;
     private PaperAnimator paperAnimator;
@@ -44,7 +44,8 @@ public class PaperUIManager : MonoBehaviour
 
             if (!paperAnimator.IsOpen())
             {
-                gm.CheckForJumpscareOnClose();
+                if (gm != null && !gm.isTutorial)
+                    gm.CheckForJumpscareOnClose();
             }
         }
     }
@@ -61,6 +62,27 @@ public class PaperUIManager : MonoBehaviour
 
 
         gm.SubmitAnswer(index, isYes);
+    }
+
+    public void LockAllExceptFirst()
+    {
+        for (int i = 0; i < yesToggles.Length; i++)
+        {
+            bool first = (i == 0);
+            yesToggles[i].interactable = first;
+            noToggles[i].interactable = first;
+            yesToggles[i].isOn = false;
+            noToggles[i].isOn = false;
+        }
+    }
+
+    public void UnlockAllPrompts()
+    {
+        for (int i = 0; i < yesToggles.Length; i++)
+        {
+            yesToggles[i].interactable = true;
+            noToggles[i].interactable = true;
+        }
     }
 
 

@@ -4,7 +4,9 @@ public class PaperAnimator : MonoBehaviour
 {
     private bool isOpen = false;
     public Animator paperAnimator;
-
+    [SerializeField] AudioSource paperSound;
+    [SerializeField] AudioClip openSound;
+    [SerializeField] AudioClip closeSound;
 
 
 
@@ -12,6 +14,10 @@ public class PaperAnimator : MonoBehaviour
     {
         isOpen = !isOpen;
         paperAnimator.SetBool("isOpen", isOpen);
+        if (isOpen)
+            paperSound.PlayOneShot(openSound);
+        else
+            paperSound.PlayOneShot(closeSound);
     }
 
     public bool IsOpen()
