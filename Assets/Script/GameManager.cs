@@ -233,6 +233,7 @@ public class GameManager : MonoBehaviour
         if (retryButton)
         {
             retryButton.gameObject.SetActive(true);
+            retryButton.onClick.RemoveAllListeners();
             retryButton.onClick.AddListener(() =>
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex)
             );
@@ -241,9 +242,11 @@ public class GameManager : MonoBehaviour
         if (returnButton)
         {
             returnButton.gameObject.SetActive(true);
+            returnButton.onClick.RemoveAllListeners();
             returnButton.onClick.AddListener(() =>
                 SceneManager.LoadScene("MainMenu")
             );
         }
+
     }
 }
