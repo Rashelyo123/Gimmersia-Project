@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Audio Settings")]
     public AudioSource audioSource;
+    public AudioClip TutorialAudio;
+
     public AudioClip[] questionAudios;
 
     [Header("UI Elements")]
@@ -60,10 +62,19 @@ public class GameManager : MonoBehaviour
             paperUI.LockAllExceptFirst();
         else
             paperUI.UnlockAllPrompts();
-
+        StartCoroutine(IntroductionQuestion());
+        // StartCoroutine(PlayAllQuestions());
+    }
+    private IEnumerator IntroductionQuestion()
+    {
+        if (isTutorial)
+        {
+            audioSource.clip = TutorialAudio;
+            audioSource.Play();
+            yield return new WaitForSeconds(TutorialAudio.length + 1f);
+        }
         StartCoroutine(PlayAllQuestions());
     }
-
     IEnumerator PlayAllQuestions()
     {
         ui.ShowMessage("Audio log started...");

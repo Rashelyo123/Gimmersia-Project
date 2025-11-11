@@ -634,9 +634,10 @@ MonoBehaviour:
   currentState: 0
   maxQuestions: 5
   audioSource: {fileID: 177918355}
+  TutorialAudio: {fileID: 8300000, guid: f72158d4989456b4ba304eb8af9be941, type: 3}
   questionAudios:
-  - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
-  - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
+  - {fileID: 8300000, guid: 1d4910210bc701347897e5c3bcecb857, type: 3}
+  - {fileID: 8300000, guid: 05eead4b46e5901408c6a46b0c617fce, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
@@ -7116,7 +7117,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2138912775
 MonoBehaviour:
   m_ObjectHideFlags: 0
