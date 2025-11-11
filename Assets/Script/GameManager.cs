@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button returnButton;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject Jumpscare;
+    [SerializeField] private GameObject blackScreen;
     [SerializeField] private VideoPlayer videoPlayer;
 
     [Header("Answer Settings")]
@@ -95,7 +96,7 @@ public class GameManager : MonoBehaviour
         {
             if (!correctAnswerGiven[questionIndex])
             {
-                ui.ShowWarning("⚠ Incorrect - Entity detected minor movement.");
+                ui.ShowWarning("Incorrect - Entity detected minor movement.");
                 StartCoroutine(completeTutorial());
             }
             else
@@ -193,21 +194,24 @@ public class GameManager : MonoBehaviour
         gameOver = true;
         currentState = GameState.EndLevel;
         ui.ShowWarning(reason);
-        Debug.Log("💀 Jumpscare Triggered: " + reason);
+        Debug.Log("Jumpscare Triggered: " + reason);
         StartCoroutine(FadeToBlackAndGameOver());
     }
 
     IEnumerator FadeToBlackAndGameOver()
     {
         if (Jumpscare)
-            Jumpscare.SetActive(true);
+            yield return new WaitForSeconds(1f);
+        Jumpscare.SetActive(true);
 
         if (videoPlayer)
             videoPlayer.Play();
-        yield return new WaitForSeconds((float)videoPlayer.clip.length);
-        Jumpscare.SetActive(false);
+        yield return new WaitForSeconds(2.5f);
+        blackScreen.SetActive(true);
+        yield return new WaitForSeconds(1f);
 
-        yield return new WaitForSeconds(0.5f);
+
+
 
 
         if (gameOverPanel)
