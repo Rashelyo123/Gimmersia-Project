@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
     [Header("Audio Settings")]
     public AudioSource audioSource;
     public AudioClip TutorialAudio;
-
     public AudioClip[] questionAudios;
 
     [Header("UI Elements")]
@@ -47,8 +46,10 @@ public class GameManager : MonoBehaviour
     private bool[] correctAnswerGiven;
     private int currentAudioIndex = 0;
     private int lastReadIndex = -1;
-    private bool allAudioPlayed = false;
     private bool gameOver = false;
+
+    private bool tutorialFinished = false;
+    private bool paperOpened = false;
 
     void Start()
     {
@@ -62,24 +63,67 @@ public class GameManager : MonoBehaviour
             paperUI.LockAllExceptFirst();
         else
             paperUI.UnlockAllPrompts();
-        StartCoroutine(IntroductionQuestion());
-        // StartCoroutine(PlayAllQuestions());
+
+        StartCoroutine(PlayTutorial());
     }
-    private IEnumerator IntroductionQuestion()
+
+    void Update()
+    {
+        if (gameOver) return;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            paperUI.TogglePaperExternally();
+
+            if (isTutorial && !paperOpened)
+            {
+                paperOpened = true;
+                audioSource.Stop();
+                ui.ShowMessage("Paper opened. All checkboxes disabled...");
+                paperUI.LockAllExceptFirst();
+            }
+            else if (isTutorial && paperOpened && !tutorialFinished)
+            {
+                StartCoroutine(StartFirstQuestion());
+                tutorialFinished = true;
+            }
+        }
+    }
+
+    private IEnumerator PlayTutorial()
     {
         if (isTutorial)
         {
             audioSource.clip = TutorialAudio;
             audioSource.Play();
-            yield return new WaitForSeconds(TutorialAudio.length + 1f);
+            ui.ShowMessage("VA Tutorial playing...");
+            yield return new WaitForSeconds(TutorialAudio.length);
+            audioSource.Stop();
+            ui.ShowMessage("Press SPACE to open the paper.");
         }
-        StartCoroutine(PlayAllQuestions());
     }
-    IEnumerator PlayAllQuestions()
+
+    private IEnumerator StartFirstQuestion()
+    {
+        paperUI.DisableAllPrompts();
+
+        AudioClip clip = questionAudios[0];
+        audioSource.clip = clip;
+        audioSource.Play();
+        ui.ShowMessage("VA Question 1 playing...");
+
+        yield return new WaitForSeconds(clip.length);
+
+        lastReadIndex = 0;
+        paperUI.UnlockPrompt(0);
+    }
+
+
+    private IEnumerator PlayAllQuestions()
     {
         ui.ShowMessage("Audio log started...");
 
-        for (currentAudioIndex = 0; currentAudioIndex < maxQuestions; currentAudioIndex++)
+        for (currentAudioIndex = 1; currentAudioIndex < maxQuestions; currentAudioIndex++)
         {
             AudioClip clip = questionAudios[currentAudioIndex];
             currentState = GameState.Listening;
@@ -91,7 +135,6 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
-        allAudioPlayed = true;
         StartCoroutine(WaitForCompletion());
     }
 
@@ -108,33 +151,29 @@ public class GameManager : MonoBehaviour
             if (!correctAnswerGiven[questionIndex])
             {
                 ui.ShowWarning("Incorrect - Entity detected minor movement.");
-                StartCoroutine(completeTutorial());
+                StartCoroutine(CompleteTutorial());
             }
             else
             {
                 ui.ShowMessage("Tutorial complete. You may now proceed.");
-                isTutorial = false;
-                paperUI.UnlockAllPrompts();
+                StartCoroutine(CompleteTutorial());
             }
             return;
         }
 
         if (!correct)
-        {
             ui.ShowWarning($"Incorrect answer for Question {questionIndex + 1}!");
-        }
         else
-        {
             ui.ShowMessage($"Response for Question {questionIndex + 1} recorded.");
-        }
     }
 
-    private IEnumerator completeTutorial()
+    private IEnumerator CompleteTutorial()
     {
         yield return new WaitForSeconds(2f);
-        ui.ShowMessage("Tutorial complete. You may now proceed.");
+        ui.ShowMessage("Tutorial complete. Proceeding to next questions...");
         isTutorial = false;
         paperUI.UnlockAllPrompts();
+        StartCoroutine(PlayAllQuestions());
     }
 
     public void CheckForJumpscareOnClose()
@@ -143,14 +182,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < maxQuestions; i++)
         {
-
-            if (isTutorial == false && correctAnswers.Length > 0 && correctAnswers[0] != null && correctAnswers.Length > 0)
-            {
-
-                if (questionAudios.Length > 0 && questionAudios[0] != null && maxQuestions >= 1 && i == 0)
-                    continue;
-            }
-
+            if (i == 0) continue;
             if (answered[i] && !correctAnswerGiven[i] && i <= currentAudioIndex)
             {
                 TriggerJumpscare($"Entity detected anomaly on Question {i + 1}...");
@@ -159,8 +191,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-    IEnumerator WaitForCompletion()
+    private IEnumerator WaitForCompletion()
     {
         yield return new WaitForSeconds(5f);
 
@@ -173,14 +204,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < maxQuestions; i++)
+        for (int i = 1; i < maxQuestions; i++)
         {
-            if (isTutorial == false && correctAnswers.Length > 0 && correctAnswers[0] != null && correctAnswers.Length > 0)
-            {
-
-                if (questionAudios.Length > 0 && questionAudios[0] != null && maxQuestions >= 1 && i == 0)
-                    continue;
-            }
             if (!correctAnswerGiven[i])
             {
                 TriggerJumpscare("Incorrect responses detected...");
@@ -202,28 +227,45 @@ public class GameManager : MonoBehaviour
     void TriggerJumpscare(string reason)
     {
         if (gameOver) return;
+
         gameOver = true;
         currentState = GameState.EndLevel;
+
+
+        StopCoroutine("PlayAllQuestions");
+        StopCoroutine("WaitForCompletion");
+        StopCoroutine("StartFirstQuestion");
+
+        if (audioSource.isPlaying)
+            audioSource.Stop();
+
         ui.ShowWarning(reason);
-        Debug.Log("Jumpscare Triggered: " + reason);
+        Debug.Log("💀 Jumpscare Triggered: " + reason);
+
         StartCoroutine(FadeToBlackAndGameOver());
     }
 
-    IEnumerator FadeToBlackAndGameOver()
+
+    private IEnumerator FadeToBlackAndGameOver()
     {
         if (Jumpscare)
+        {
             yield return new WaitForSeconds(1f);
-        Jumpscare.SetActive(true);
+            Jumpscare.SetActive(true);
+        }
 
         if (videoPlayer)
+        {
             videoPlayer.Play();
-        yield return new WaitForSeconds(2.5f);
+            yield return new WaitForSeconds((float)videoPlayer.clip.length);
+        }
+        else
+        {
+            yield return new WaitForSeconds(2.5f);
+        }
+
         blackScreen.SetActive(true);
         yield return new WaitForSeconds(1f);
-
-
-
-
 
         if (gameOverPanel)
             gameOverPanel.SetActive(true);
@@ -247,6 +289,5 @@ public class GameManager : MonoBehaviour
                 SceneManager.LoadScene("MainMenu")
             );
         }
-
     }
 }

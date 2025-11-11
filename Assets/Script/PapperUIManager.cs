@@ -15,54 +15,35 @@ public class PaperUIManager : MonoBehaviour
         gm = FindObjectOfType<GameManager>();
         paperAnimator = FindObjectOfType<PaperAnimator>();
 
-
         for (int i = 0; i < yesToggles.Length; i++)
         {
             yesToggles[i].isOn = false;
             noToggles[i].isOn = false;
-
             yesToggles[i].interactable = true;
             noToggles[i].interactable = true;
-        }
 
-
-        for (int i = 0; i < yesToggles.Length; i++)
-        {
             int index = i;
             yesToggles[i].onValueChanged.AddListener((val) => OnCheckboxSelected(index, true));
             noToggles[i].onValueChanged.AddListener((val) => OnCheckboxSelected(index, false));
         }
     }
 
-    void Update()
+    public void TogglePaperExternally()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        paperAnimator.TogglePaper();
+
+        if (!paperAnimator.IsOpen() && gm != null && !gm.isTutorial)
         {
-            paperAnimator.TogglePaper();
-
-            // Hanya cek jumpscare kalau BUKAN tutorial
-            if (!paperAnimator.IsOpen())
-            {
-                // Pastikan GameManager ada dan bukan di tutorial
-                if (gm != null && !gm.isTutorial)
-                {
-                    gm.CheckForJumpscareOnClose();
-                }
-            }
+            gm.CheckForJumpscareOnClose();
         }
-
     }
-
 
     public void OnCheckboxSelected(int index, bool isYes)
     {
-
         if (!(isYes ? yesToggles[index].isOn : noToggles[index].isOn)) return;
-
 
         if (isYes) noToggles[index].isOn = false;
         else yesToggles[index].isOn = false;
-
 
         gm.SubmitAnswer(index, isYes);
     }
@@ -79,6 +60,15 @@ public class PaperUIManager : MonoBehaviour
         }
     }
 
+    public void UnlockPrompt(int index)
+    {
+        if (index >= 0 && index < yesToggles.Length)
+        {
+            yesToggles[index].interactable = true;
+            noToggles[index].interactable = true;
+        }
+    }
+
     public void UnlockAllPrompts()
     {
         for (int i = 0; i < yesToggles.Length; i++)
@@ -88,16 +78,23 @@ public class PaperUIManager : MonoBehaviour
         }
     }
 
-
     public void ResetPaper()
     {
         for (int i = 0; i < yesToggles.Length; i++)
         {
             yesToggles[i].isOn = false;
             noToggles[i].isOn = false;
-
             yesToggles[i].interactable = true;
             noToggles[i].interactable = true;
         }
     }
+    public void DisableAllPrompts()
+    {
+        for (int i = 0; i < yesToggles.Length; i++)
+        {
+            yesToggles[i].interactable = false;
+            noToggles[i].interactable = false;
+        }
+    }
+
 }

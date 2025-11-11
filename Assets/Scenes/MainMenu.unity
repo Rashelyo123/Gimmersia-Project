@@ -999,8 +999,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 637, y: 58}
-  m_SizeDelta: {x: 168, y: 111}
+  m_AnchoredPosition: {x: 434.04, y: 214.887}
+  m_SizeDelta: {x: 295.25, y: 228.2261}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1844339660
 MonoBehaviour:
@@ -1021,7 +1021,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 3
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -1078,7 +1078,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a678b29467b4cb2429d7d14188608fd6, type: 3}
+  m_Sprite: {fileID: 346020850, guid: 676cf591567a727459460a5cc2e202cb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1307,6 +1307,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FadeIN
+      objectReference: {fileID: 0}
+    - target: {fileID: 5040877026954158297, guid: f95c38fe38442664eb1c4395f7a9ce2c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5889919411850522483, guid: f95c38fe38442664eb1c4395f7a9ce2c,
         type: 3}
