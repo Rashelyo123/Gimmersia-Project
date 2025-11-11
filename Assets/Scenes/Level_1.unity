@@ -634,9 +634,9 @@ MonoBehaviour:
   currentState: 0
   maxQuestions: 5
   audioSource: {fileID: 177918355}
-  TutorialAudio: {fileID: 8300000, guid: f72158d4989456b4ba304eb8af9be941, type: 3}
+  TutorialAudio: {fileID: 8300000, guid: 192c90044c5060a4c8ab1c6c25e86f24, type: 3}
   questionAudios:
-  - {fileID: 8300000, guid: 1d4910210bc701347897e5c3bcecb857, type: 3}
+  - {fileID: 8300000, guid: 4c0757e4c56840d47a79c739bca41989, type: 3}
   - {fileID: 8300000, guid: 05eead4b46e5901408c6a46b0c617fce, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
   - {fileID: 8300000, guid: b047757d35a461648a359d3e9b5a5b9d, type: 3}
