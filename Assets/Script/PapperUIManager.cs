@@ -6,6 +6,8 @@ public class PaperUIManager : MonoBehaviour
     [Header("Paper Elements")]
     public Toggle[] yesToggles;
     public Toggle[] noToggles;
+    private bool suppressEvents = false;
+
 
     private GameManager gm;
     private PaperAnimator paperAnimator;
@@ -21,6 +23,8 @@ public class PaperUIManager : MonoBehaviour
             noToggles[i].isOn = false;
             yesToggles[i].interactable = true;
             noToggles[i].interactable = true;
+            yesToggles[i].navigation = new Navigation { mode = Navigation.Mode.None };
+            noToggles[i].navigation = new Navigation { mode = Navigation.Mode.None };
 
             int index = i;
             yesToggles[i].onValueChanged.AddListener((val) => OnCheckboxSelected(index, true));
@@ -30,6 +34,12 @@ public class PaperUIManager : MonoBehaviour
 
     public void TogglePaperExternally()
     {
+        // Tutup noted kalau sedang terbuka
+        if (gm != null && gm.notedPage != null && gm.notedPage.IsOpen())
+        {
+            gm.notedPage.ForceClose();
+        }
+
         paperAnimator.TogglePaper();
 
         if (!paperAnimator.IsOpen() && gm != null && !gm.isTutorial)
@@ -38,12 +48,16 @@ public class PaperUIManager : MonoBehaviour
         }
     }
 
+
     public void OnCheckboxSelected(int index, bool isYes)
     {
+        if (suppressEvents) return;
         if (!(isYes ? yesToggles[index].isOn : noToggles[index].isOn)) return;
 
+        suppressEvents = true;
         if (isYes) noToggles[index].isOn = false;
         else yesToggles[index].isOn = false;
+        suppressEvents = false;
 
         gm.SubmitAnswer(index, isYes);
     }
@@ -55,10 +69,13 @@ public class PaperUIManager : MonoBehaviour
             bool first = (i == 0);
             yesToggles[i].interactable = first;
             noToggles[i].interactable = first;
-            yesToggles[i].isOn = false;
-            noToggles[i].isOn = false;
+
+            // Hapus dua baris ini ⛔
+            // yesToggles[i].isOn = false;
+            // noToggles[i].isOn = false;
         }
     }
+
 
     public void UnlockPrompt(int index)
     {

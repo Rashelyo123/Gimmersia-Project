@@ -19,6 +19,16 @@ public class PaperAnimator : MonoBehaviour
         else
             paperSound.PlayOneShot(closeSound);
     }
+    public void ForceClose()
+    {
+        if (isOpen)
+        {
+            isOpen = false;
+            paperAnimator.SetBool("isOpen", false);
+            paperSound.PlayOneShot(closeSound);
+        }
+    }
+
 
     public bool IsOpen()
     {

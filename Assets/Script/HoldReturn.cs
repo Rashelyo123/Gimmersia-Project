@@ -4,16 +4,17 @@ using UnityEngine.SceneManagement;
 
 public class HoldReturn : MonoBehaviour
 {
-    private Animator animator;
+    // private Animator animator;
     public GameObject blackScreen;
+    //public GameObject pressSpaceText;
 
     private float holdTime = 0f;
     public float holdDuration = 1f;
 
     void Start()
     {
-        animator = GetComponent<Animator>();
-        StartCoroutine(HoldReturnCoroutine());
+        //  animator = GetComponent<Animator>();
+        // StartCoroutine(HoldReturnCoroutine());
     }
 
     void Update()
@@ -25,7 +26,7 @@ public class HoldReturn : MonoBehaviour
 
             if (holdTime >= holdDuration)
             {
-                animator.SetBool("isHolding", false);
+                // animator.SetBool("isHolding", false);
                 blackScreen.SetActive(true);
                 StartCoroutine(WaitAndLoadMainMenu());
             }
@@ -44,11 +45,12 @@ public class HoldReturn : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    private IEnumerator HoldReturnCoroutine()
-    {
-        yield return new WaitForSeconds(5f);
-        animator.SetBool("isHolding", true);
-        yield return new WaitForSeconds(10f);
-        animator.SetBool("isHolding", false);
-    }
+    // private IEnumerator HoldReturnCoroutine()
+    // {
+    //     yield return new WaitForSeconds(5f);
+    //     animator.SetBool("isHolding", true);
+    //     yield return new WaitForSeconds(10f);
+    //     animator.SetBool("isHolding", false);
+    // }
+
 }
