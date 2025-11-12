@@ -32,7 +32,7 @@ public class MainMenu : MonoBehaviour
         TraansitionScene.SetActive(true);
 
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2.5f);
 
 
         SceneManager.LoadScene(sceneName);
